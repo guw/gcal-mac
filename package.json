@@ -1,5 +1,9 @@
 {
-  "name"    : "your-app",
-  "version" : "0.1.0",
-  "main"    : "main.js"
+  "name"    : "PivotalTracker",
+  "version" : "0.0.1",
+  "main"    : "main.js",
+  "scripts" : {
+    "mac": "electron-packager . \"Pivotal Tracker\" --platform=darwin --arch=x64 --version=0.35.4 --app-version=0.0.1 --icon=app.icns --app-bundle-id=com.pivotaltracker.mac --out=/Applications --ignore=dist --overwrite --asar=true",
+    "linux": "electron-packager . \"Pivotal Tracker\" --platform=linux --arch=x64 --version=0.35.4 --app-version=0.0.1 --out=/Applications --ignore=dist --overwrite --asar=true"
+  }
 }
