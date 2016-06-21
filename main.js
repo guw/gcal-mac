@@ -1,25 +1,21 @@
 const electron = require('electron');
-const app = electron.app;
+const {app} = electron;
+const {BrowserWindow, Menu} = electron;
 const globalShortcut = electron.globalShortcut;
-const session = require('electron').session;
-var BrowserWindow = require('browser-window');
-var Menu = require('menu');
 
-var force_quit = false;
-
-var menu = Menu.buildFromTemplate([
+const template = [
   {
-    label: 'Pivotal Tracker',
+    label: 'Calendar',
     submenu: [
       {
-        label: 'About Pivotal Tracker',
+        label: 'About Calendar',
         selector: 'orderFrontStandardAboutPanel:'
       },
       {
         type: 'separator'
       },
       {
-        label: 'Hide Pivotal Tracker',
+        label: 'Hide Calendar',
         accelerator: 'CmdOrCtrl+H',
         click: function() {mainWindow.hide();}
       },
@@ -27,7 +23,7 @@ var menu = Menu.buildFromTemplate([
         type: 'separator'
       },
       {
-        label: 'Quit Pivotal Tracker',
+        label: 'Quit Calendar',
         accelerator: 'CmdOrCtrl+Q',
         click: function() {force_quit=true; app.quit();}
       },
@@ -139,21 +135,20 @@ var menu = Menu.buildFromTemplate([
     role: 'help',
     submenu: [
       {
-        label: 'Pivotal Tracker on GitHub',
-        click: function() { require('electron').shell.openExternal('https://github.com/wr/tracker-mac') }
+        label: 'Calendar on GitHub',
+        click: function() { require('electron').shell.openExternal('https://github.com/wr/gcal-mac') }
       },
     ]
   }
-]);
+];
 
-// Report crashes to our server.
-//electron.crashReporter.start();
+const menu = Menu.buildFromTemplate(template);
+Menu.setApplicationMenu(menu);
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
-var mainWindow = null;
 
 // Quit when all windows are closed.
+var force_quit = false;
+
 app.on('window-all-closed', function() {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
@@ -162,50 +157,66 @@ app.on('window-all-closed', function() {
   }
 });
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-app.on('ready', function() {
-  Menu.setApplicationMenu(menu);
 
+// Keep a global reference of the window object, if you don't, the window will
+// be closed automatically when the JavaScript object is garbage collected.
+let win;
+
+function createWindow() {
   // Create the browser window.
-  mainWindow = new BrowserWindow({
+  win = new BrowserWindow({
     width: 2000,
     height: 1200,
     minWidth: 900,
     minHeight: 550,
-    'node-integration': false,
-    //'title-bar-style': 'hidden-inset',
-    'web-preferences': {'web-security': false},
-    zoomFactor: 1.3
-  });
-
-  // and load the index.html of the app.
-  mainWindow.loadURL('https://www.pivotaltracker.com/n/projects/1528533');
-
-  // open _blank links in same window
-  mainWindow.webContents.on('new-window', function(e, url) {
-    e.preventDefault();
-    require('shell').openExternal(url);
-  });
-
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
-
-  mainWindow.on('close', function(e){
-    if(!force_quit){
-      e.preventDefault();
-      mainWindow.hide();
+    webPreferences: {
+      nodeIntegration: false,
+      scrollBounce: true,
+      webSecurity: false
     }
   });
 
-  mainWindow.on('closed', function(){
-    mainWindow = null;
+  // and load the index.html of the app.
+  win.loadURL('https://calendar.google.com/calendar');
+
+  // Open the DevTools.
+  //win.webContents.openDevTools();
+
+  // Emitted when the window is closed.
+  win.on('closed', () => {
+    // Dereference the window object, usually you would store windows
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+    win = null;
+  });
+
+  // open _blank links in same window
+  win.webContents.on('new-window', function(e, url) {
+    e.preventDefault();
+    require('electron').shell.openExternal(url);
+  });
+
+  win.on('close', function(e){
+    if(!force_quit){
+      e.preventDefault();
+      win.hide();
+    }
+  });
+
+  win.on('closed', function(){
+    win = null;
     globalShortcut.unregisterAll()
     app.quit();
   });
 
   app.on('activate', function(){
-    mainWindow.show();
+    win.show();
   });
 
-});
+  Menu.setApplicationMenu(menu);
+}
+
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+app.on('ready', createWindow);
