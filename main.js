@@ -82,7 +82,7 @@ const template = [
       {
         label: 'Reload',
         accelerator: 'CmdOrCtrl+R',
-        click: function() {mainWindow.reload();}
+        click: function() {win.reload();}
       },
       {
         label: 'Toggle Sidebar',
