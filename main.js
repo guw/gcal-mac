@@ -73,7 +73,7 @@ const template = [
         label: 'Select All',
         accelerator: 'CmdOrCtrl+A',
         role: 'selectall'
-      },
+      }
     ]
   },
   {
@@ -82,12 +82,9 @@ const template = [
       {
         label: 'Reload',
         accelerator: 'CmdOrCtrl+R',
-        click: function() {win.reload();}
-      },
-      {
-        label: 'Toggle Sidebar',
-        accelerator: 'Shift+Cmd+L',
-        click: function() {toggleSidebar();}
+        click (item, focusedWindow) {
+          if (focusedWindow) focusedWindow.reload()
+        }
       },
       {
         label: 'Toggle Full Screen',
@@ -104,13 +101,10 @@ const template = [
       },
       {
         label: 'Toggle Developer Tools',
-        accelerator: (function() {
-          if (process.platform == 'darwin')
-            return 'Alt+Command+I';
-          else
-            return 'Ctrl+Shift+I';
-        })(),
-        click: function() {mainWindow.toggleDevTools();}
+        accelerator: process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
+        click (item, focusedWindow) {
+          if (focusedWindow) focusedWindow.webContents.toggleDevTools()
+        }
       },
     ]
   },
